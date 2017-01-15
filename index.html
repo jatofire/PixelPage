@@ -44,14 +44,30 @@
       background-color: white;
     }
 
+    .button {
+      padding: 10px;
+      border: 2px solid #d3d3d3;
+      border-radius: 5px;
+    }
 
+    .toolbar {
+      display: inline-block;
+    }
     </style>
 
 
   </head>
-  <body onload="StartGame()">
+  <body>
 
+
+<div class="button" onClick="StartGame()">Start Drawing</div>
+<input id="widthInput" value="20"></input>
+<input id="heightInput" value="20"></input>
 <div id="game"></div>
+<div>
+  <div onClick="SetAction('erase')" class="button toolbar">Erase</div>
+  <div onClick="SetAction('draw')" class="button toolbar">Draw</div>
+</div>
 <div id="pallette">
   
 <div id= "blueColourID" class="colourBox blue"></div>

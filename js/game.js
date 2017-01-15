@@ -8,7 +8,9 @@ function Map(mapWidth, mapHeight, tileWidth, tileHeight) {
 
   this.draw = function(ctx) {
     for(i = 0; i < this.tiles.length; i += 1) {
-      this.tiles[i].draw(ctx);
+      if(this.tiles[i].visible === true) {
+        this.tiles[i].draw(ctx);
+      }
     }
   }
 
@@ -17,7 +19,7 @@ function Map(mapWidth, mapHeight, tileWidth, tileHeight) {
 var map;
 var preview;
 var currentColour = "";
-
+var action = "draw";
 var mouseDown = false;
 
 
@@ -68,9 +70,10 @@ function StartGame() {
   });
 
   preview = document.getElementById("previewimage");
+  mapWidth = document.getElementById("widthInput");
+  mapHeight = document.getElementById("heightInput");
 
-
-  map = new Map(10,10,20,20);
+  map = new Map(mapWidth.value, mapHeight.value, 20, 20);
   //tiles[0].draw(gameArea.context);
   gameArea.start(gameContainer, map);
   currentColour = "black";
@@ -83,12 +86,7 @@ var gameArea = {
         this.canvas.width = map.mapWidth * map.tileWidth;
         this.canvas.height = map.mapHeight * map.tileHeight;
         this.context = this.canvas.getContext("2d");
-        
         gameContainer.appendChild(this.canvas);
-       
-        //document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.frameNo = 0;
-
         this.interval = setInterval(update, 20);
         },
     clear : function() {
@@ -112,21 +110,29 @@ function HandleClick(e) {
     mouseDown = false;
     return;
   }
-
-
   
-  console.log("Click x: " + t.x + " y: " + t.y);
   var tile = tileAtPos(t.x, t.y);
   
-
+  if(this.action === "draw") {
     var x = t.x - (t.x % map.tileWidth);
     var y = t.y - (t.y % map.tileHeight);
-
-    map.tiles.push(new Tile(x, y, currentColour, "Green Tile"));
+    map.tiles.push(new Tile(x, y, currentColour,  currentColour + " Tile"));
+    return;
+  } else if(this.action == "erase") {
+    if(tile) {
+    tile.colour = "red";
+    tile.visible = false;
+    }
+  }
   
 
-    preview.src = gameArea.canvas.toDataURL("image/png");
+    //preview.src = gameArea.canvas.toDataURL("image/png");
 
+}
+
+function SetAction(act) {
+  this.action = act;
+  console.log("Action changed to: " + this.action);
 }
 
 
@@ -164,7 +170,7 @@ function Tile(x, y, colour, name) {
   this.y = y;
   this.colour = colour;
   this.name = name;
-
+  this.visible = true;
   this.draw = function(ctx) {
       ctx.fillStyle = this.colour;
       ctx.fillRect(this.x, this.y, 20, 20);
