@@ -14,8 +14,14 @@ function Map(mapWidth, mapHeight, tileWidth, tileHeight) {
 
 };
 
-var map = new Map(10,10,20,20);
+var map;
+var preview;
 var currentColour = "";
+
+var mouseDown = false;
+
+
+
 
 function StartGame() {
 
@@ -45,24 +51,37 @@ function StartGame() {
   });
 
   var gameContainer = document.getElementById("game");
-  gameContainer.addEventListener('click', function(e) {
-    HandleClick(e);
+  gameContainer.addEventListener('mousedown', function(e) {
+    mouseDown = true;
+   
   });
 
-  map.tiles.push(new Tile(20, 20, "red", "Red Tile"));
-  map.tiles.push(new Tile(80, 40, "yellow", "Yellow Tile"));
+    gameContainer.addEventListener('mouseup', function(e) {
+    mouseDown = false;
+    
+  });
+      
+  gameContainer.addEventListener('mousemove', function(e) {
+    if(mouseDown) {
+     HandleClick(e);
+    }
+  });
 
+  preview = document.getElementById("previewimage");
+
+
+  map = new Map(10,10,20,20);
   //tiles[0].draw(gameArea.context);
-  gameArea.start(gameContainer);
+  gameArea.start(gameContainer, map);
   currentColour = "black";
 
 }
    
 var gameArea = {
   canvas : document.createElement("canvas"),
-    start : function(gameContainer) {
-        this.canvas.width = 200;
-        this.canvas.height = 200;
+    start : function(gameContainer, map) {
+        this.canvas.width = map.mapWidth * map.tileWidth;
+        this.canvas.height = map.mapHeight * map.tileHeight;
         this.context = this.canvas.getContext("2d");
         
         gameContainer.appendChild(this.canvas);
@@ -89,6 +108,13 @@ function randomMap() {
 
 function HandleClick(e) {
   var t = getRelativeCoords(e);
+  if(t.x < 0 || t.x > gameArea.canvas.width || t.y < 0 || t.y > gameArea.canvas.height) {
+    mouseDown = false;
+    return;
+  }
+
+
+  
   console.log("Click x: " + t.x + " y: " + t.y);
   var tile = tileAtPos(t.x, t.y);
   
@@ -98,6 +124,9 @@ function HandleClick(e) {
 
     map.tiles.push(new Tile(x, y, currentColour, "Green Tile"));
   
+
+    preview.src = gameArea.canvas.toDataURL("image/png");
+
 }
 
 
