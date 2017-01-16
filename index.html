@@ -63,21 +63,24 @@
 <div class="button" onClick="StartGame()">Start Drawing</div>
 <input id="widthInput" value="20"></input>
 <input id="heightInput" value="20"></input>
+<div id="currentColourPreview" class="colourBox black"></div>
 <div id="game"></div>
 <div>
   <div onClick="SetAction('erase')" class="button toolbar">Erase</div>
   <div onClick="SetAction('draw')" class="button toolbar">Draw</div>
+   <div onClick="SetAction('fill')" class="button toolbar">Fill</div>
 </div>
 <div id="pallette">
   
-<div id= "blueColourID" class="colourBox blue"></div>
-<div id= "redColourID" class="colourBox red"></div>
-<div id= "greenColourID" class="colourBox green"></div>
-<div id= "yellowColourID" class="colourBox yellow"></div>
-<div id= "blackColourID" class="colourBox black"></div>
-<div id= "whiteColourID" class="colourBox white"></div>
+<div style="background-color: blue;" onClick="SetCurrentColour('blue')" class="colourBox"></div>
+<div style="background-color: red;" onClick="SetCurrentColour('red')" class="colourBox"></div>
+<div style="background-color: green;" onClick="SetCurrentColour('green')" class="colourBox"></div>
+<div style="background-color: yellow;" onClick="SetCurrentColour('yellow')" class="colourBox"></div>
+<div style="background-color: black;" onClick="SetCurrentColour('black')" class="colourBox"></div>
+<div style="background-color: white;" onClick="SetCurrentColour('white')" class="colourBox"></div>
+<div style="background-color: #cccccc;" onClick="SetCurrentColour('#cccccc')" class="colourBox"></div>
 </div>
-
+<button onclick="MakeImage()">Make Image</button>
 <img src="" id="previewimage">
 
 <script type="text/javascript" src="js/game.js"></script>
