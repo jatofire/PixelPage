@@ -15,9 +15,9 @@ function Map(mapWidth, mapHeight, tileWidth, tileHeight) {
   }
 
 
-  for(i= 0; i < this.mapWidth * this.tileWidth; i += this.tileWidth) {
-    for(j = 0; j < this.mapHeight * this.tileHeight; j += this.tileHeight) {
-      var tile = new Tile(i, j, currentColour,  currentColour + " Tile");
+  for(i= 0; i < this.mapHeight * this.tileHeight; i += this.tileHeight) {
+    for(j = 0; j < this.mapWidth * this.tileWidth; j += this.tileWidth) {
+      var tile = new Tile(j, i, currentColour,  currentColour + " Tile");
       tile.visible = false;
       this.tiles.push(tile);
     }
@@ -62,6 +62,10 @@ function StartGame() {
   //tiles[0].draw(gameArea.context);
   gameArea.start(gameContainer, map);
   currentColour = "black";
+
+
+  //var t = tileAtPos(81, 61);
+  //Fill(t);
 
 }
 
@@ -151,6 +155,9 @@ function HandleClick(e) {
     if(this.action === "fill") {
       Fill(tile);
     }
+    if(this.action === "erasefill") {
+      Fill(tile, true);
+    }
 
 }
 
@@ -168,45 +175,49 @@ function MakeImage() {
  preview.src = gameArea.canvas.toDataURL("image/png");
 }
 
-function Fill(tile) {
+function Fill(tile, erase = false) {
   
+
+  console.log("Fill erase: " + erase);
+
   var tilesToCheck = [];
   var tilesChecked = [];
   var checkingTiles = true;
-  tilesToCheck.push(tile);
+  var tileId = map.tiles.indexOf(tile);
+  tilesToCheck.push(tileId);
 
- 
+  var oldColour = tile.colour;
+  var oldVisible = tile.visible;
  
   //check top
  
   while(checkingTiles === true) {
     
     
-    //console.log("Tiles to add length: " + tilesToAdd.length);
+    
 
-    var tilesToAdd = CheckSurrounding(tilesToCheck[0]);
-    console.log("Tiles to add length: " + tilesToAdd.length);
+    var tilesToAdd = CheckSurrounding(tilesToCheck[0], tilesChecked, oldColour, oldVisible);
+   
 
 
-    if(tilesToAdd == null) {} else {
-      for(i= 0; i < tilesToAdd.length; i +=1 ) {
-        console.log("Checking tile: " + this.tilesToAdd[i].y);
-      }
-    }
+  
   
     if(tilesToAdd == null) {} else {
 
       for(i = 0; i < tilesToAdd.length; i += 1) {
-        tilesToCheck.push(tilesToAdd[i]);
+
+        if(tilesToCheck.indexOf(tilesToAdd[i]) == -1) {
+
+          tilesToCheck.push(tilesToAdd[i]);
+        }
       }
     }
 
-    var indexToAdd = map.tiles.indexOf(tilesToCheck[0]);
+    
 
-    tilesChecked.push(indexToAdd);
+    tilesChecked.push(tilesToCheck[0]);
     tilesToCheck.splice(0, 1);
-    console.log("Tiles to check length: " + tilesToCheck.length);
-    console.log("Tiles checked length: " + tilesChecked.length);
+   
     if(tilesToCheck.length === 0) { checkingTiles = false }; 
   }
 
@@ -214,10 +225,14 @@ function Fill(tile) {
 
 
   for( j = 0; j < tilesChecked.length; j += 1) {
-    console.log("Checked: " + tilesChecked[j]);
+    
     if(tilesChecked[j] != -1) {
-      map.tiles[tilesChecked[j]].visible = true;
-      map.tiles[tilesChecked[j]].colour = "red";
+      if(erase === true) {
+        map.tiles[tilesChecked[j]].visible = false;
+      } else {
+        map.tiles[tilesChecked[j]].visible = true;
+        map.tiles[tilesChecked[j]].colour = currentColour;
+      }
     }
   }
 
@@ -225,29 +240,76 @@ function Fill(tile) {
 
 }
 
-function CheckSurrounding(tile) {
+function CheckSurrounding(tileId, checked, colour, visible) {
   
+  if(tileId === -1) { return null; }
+
   var tiles = [];
- console.log("Checking tile in surrounding: " + tile.y);
-  //check top
-  if(tile.y - 10 > 0) {
-    var topTile = tileAtPos(tile.x + 10, tile.y - 10);
-    var topIndex = map.tiles.indexOf(topTile);
-    tiles.push(this.topIndex);
-  }
+ if(tileId <= map.tiles.length + 1) {
+   
+    var tile = map.tiles[tileId];
+    //check top
+    if(tile.y - 10 > 0) {
+      
+      var topTile = tileAtPos(tile.x + 10, tile.y - 10);
+      
+      if(topTile.colour === colour && topTile.visible === visible) {
+        var topIndex = map.tiles.indexOf(topTile);
+        if(checked.indexOf(topIndex) === -1) {
+          tiles.push(topIndex);
+        } 
+      }
 
-  //check bottom
- if(tile.y + 10 < map.mapHeight * map.tileHeight) {
-    var bottomTile = tileAtPos(tile.x + map.tileHeight + 10, tile.y + 10);
-    var bottomIndex = map.tiles.indexOf(bottomTile);
-    tiles.push(this.bottomIndex);
-  }
+    }
 
-  // check right
+    //check bottom
+    if(tile.y + map.tileHeight + 10 < map.mapHeight * map.tileHeight) {
+      var bottomTile = tileAtPos(tile.x + 10, tile.y + map.tileHeight + 10);
+      
+      if(bottomTile.colour === colour && bottomTile.visible === visible) {
+        var bottomIndex = map.tiles.indexOf(bottomTile);
+        if(checked.indexOf(bottomIndex) === -1) {
+          tiles.push(bottomIndex);
+        } 
+      }
+
+    }
+
+  // check left
+
+    if(tile.x - 10 > 0) {
+      var leftTile = tileAtPos(tile.x - 10, tile.y + 10);
+      
+
+      if(leftTile.colour === colour && leftTile.visible === visible) {
+        var leftIndex = map.tiles.indexOf(leftTile);
+        if(checked.indexOf(leftIndex) === -1) {
+          tiles.push(leftIndex);
+        } 
+      }
+
+    }
+
+  /// check right
+
+    if(tile.x + map.tileWidth + 10 < map.mapWidth * map.tileWidth) {
+      var rightTile = tileAtPos(tile.x + map.tileWidth + 10, tile.y + 10);
 
 
-  /// check left
+       if(rightTile.colour === colour && rightTile.visible === visible) {
+        var rightIndex = map.tiles.indexOf(rightTile);
+        
 
+        if(checked.indexOf(rightIndex) === -1) {
+          tiles.push(rightIndex);
+        }
+      }
+      
+    }
+
+
+
+}
   
   if(tiles.length > 0) {
     return tiles;
