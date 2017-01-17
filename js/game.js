@@ -59,10 +59,11 @@ function StartGame() {
   mapHeight = document.getElementById("heightInput");
 
   map = new Map(mapWidth.value, mapHeight.value, 20, 20);
+
   //tiles[0].draw(gameArea.context);
   gameArea.start(gameContainer, map);
   currentColour = "black";
-
+  map.draw(gameArea.context);
 
   //var t = tileAtPos(81, 61);
   //Fill(t);
@@ -78,7 +79,7 @@ var gameArea = {
         this.canvas.height = map.mapHeight * map.tileHeight;
         this.context = this.canvas.getContext("2d");
         gameContainer.appendChild(this.canvas);
-        this.interval = setInterval(update, 20);
+        //this.interval = setInterval(update, 20);
         },
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -125,6 +126,7 @@ function HandleMoved(e) {
       if(tile != null) {
         console.log("Erase");
         tile.visible = false;
+        tile.clear(gameArea.context);
       }
     }
   }
@@ -148,7 +150,8 @@ function HandleClick(e) {
     if(this.action === "erase") {
       if(tile != null) {
         console.log("Erase");
-        tile.visible = false;
+       
+        tile.clear(gameArea.context);
         mouseDown = true;
       }
     }
@@ -169,6 +172,7 @@ function SetAction(act) {
 function DrawTile(tile) {
   tile.colour = currentColour;
   tile.visible = true;
+  tile.draw(gameArea.context);
 }
 
 function MakeImage() {
@@ -232,6 +236,7 @@ function Fill(tile, erase = false) {
       } else {
         map.tiles[tilesChecked[j]].visible = true;
         map.tiles[tilesChecked[j]].colour = currentColour;
+        map.tiles[tilesChecked[j]].draw(gameArea.context);
       }
     }
   }
@@ -245,16 +250,14 @@ function CheckSurrounding(tileId, checked, colour, visible) {
   if(tileId === -1) { return null; }
 
   var tiles = [];
- if(tileId <= map.tiles.length + 1) {
+  if(tileId <= map.tiles.length + 1) {
    
     var tile = map.tiles[tileId];
     //check top
-    if(tile.y - 10 > 0) {
-      
-      var topTile = tileAtPos(tile.x + 10, tile.y - 10);
-      
+    if(tile.y != 0) {
+      var topIndex = tileId - map.mapWidth;
+      var topTile = map.tiles[topIndex];
       if(topTile.colour === colour && topTile.visible === visible) {
-        var topIndex = map.tiles.indexOf(topTile);
         if(checked.indexOf(topIndex) === -1) {
           tiles.push(topIndex);
         } 
@@ -263,11 +266,10 @@ function CheckSurrounding(tileId, checked, colour, visible) {
     }
 
     //check bottom
-    if(tile.y + map.tileHeight + 10 < map.mapHeight * map.tileHeight) {
-      var bottomTile = tileAtPos(tile.x + 10, tile.y + map.tileHeight + 10);
-      
+    if(tile.y + map.tileHeight != map.mapHeight * map.tileHeight) {
+      var bottomIndex = parseInt(tileId) + parseInt(map.mapHeight);
+      var bottomTile = map.tiles[bottomIndex];      
       if(bottomTile.colour === colour && bottomTile.visible === visible) {
-        var bottomIndex = map.tiles.indexOf(bottomTile);
         if(checked.indexOf(bottomIndex) === -1) {
           tiles.push(bottomIndex);
         } 
@@ -275,41 +277,33 @@ function CheckSurrounding(tileId, checked, colour, visible) {
 
     }
 
-  // check left
+    // check left
 
-    if(tile.x - 10 > 0) {
-      var leftTile = tileAtPos(tile.x - 10, tile.y + 10);
-      
-
+    if(tile.x != 0) {
+      var leftIndex = tileId - 1;
+      var leftTile = map.tiles[leftIndex];
       if(leftTile.colour === colour && leftTile.visible === visible) {
-        var leftIndex = map.tiles.indexOf(leftTile);
         if(checked.indexOf(leftIndex) === -1) {
           tiles.push(leftIndex);
         } 
       }
-
     }
 
-  /// check right
+    /// check right
 
-    if(tile.x + map.tileWidth + 10 < map.mapWidth * map.tileWidth) {
-      var rightTile = tileAtPos(tile.x + map.tileWidth + 10, tile.y + 10);
-
-
-       if(rightTile.colour === colour && rightTile.visible === visible) {
-        var rightIndex = map.tiles.indexOf(rightTile);
-        
-
+    if(tile.x + map.tileWidth != map.mapWidth * map.tileWidth) {
+      var rightIndex = tileId + 1;
+      var rightTile =  map.tiles[rightIndex];
+      if(rightTile.colour === colour && rightTile.visible === visible) {
         if(checked.indexOf(rightIndex) === -1) {
           tiles.push(rightIndex);
         }
-      }
-      
+      }      
     }
 
 
 
-}
+  }
   
   if(tiles.length > 0) {
     return tiles;
@@ -320,6 +314,7 @@ function CheckSurrounding(tileId, checked, colour, visible) {
 
 
 function tileAtPos(x, y){
+/*
   for(i = 0; i < map.tiles.length; i +=1 ) {
     if(x >= map.tiles[i].x && x <= map.tiles[i].x + map.tileWidth) {
       if(y >= map.tiles[i].y && y <= map.tiles[i].y + map.tileHeight) {
@@ -328,6 +323,16 @@ function tileAtPos(x, y){
     }
   }
   return null;
+*/
+
+  var newx = x - (x % map.tileWidth);
+  var newy = y - (y % map.tileHeight);
+
+  var xindex = newx / map.tileWidth;
+  var yindex = newy / (map.tileHeight) * map.mapHeight;
+  var index = xindex + yindex;
+  return  map.tiles[index];
+
 }
 
 
@@ -356,4 +361,21 @@ function Tile(x, y, colour, name) {
       ctx.fillStyle = this.colour;
       ctx.fillRect(this.x, this.y, 20, 20);
   };
+
+  this.clear = function(ctx) {
+    ctx.clearRect(this.x, this.y, 20, 20);
+  }
+
+
+
+
 }
+
+
+ function SetColour() {
+
+    var e = document.getElementById('colourPicker');
+   SetCurrentColour(e.value);
+
+
+  }

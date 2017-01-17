@@ -72,7 +72,7 @@
    <div onClick="SetAction('erasefill')" class="button toolbar">Erase Fill</div>
 </div>
 <div id="pallette">
-  
+<input id="colourPicker" onChange="SetColour()" type="color" name="colourPicker">
 <div style="background-color: blue;" onClick="SetCurrentColour('blue')" class="colourBox"></div>
 <div style="background-color: red;" onClick="SetCurrentColour('red')" class="colourBox"></div>
 <div style="background-color: green;" onClick="SetCurrentColour('green')" class="colourBox"></div>
@@ -80,12 +80,14 @@
 <div style="background-color: black;" onClick="SetCurrentColour('black')" class="colourBox"></div>
 <div style="background-color: white;" onClick="SetCurrentColour('white')" class="colourBox"></div>
 <div style="background-color: #cccccc;" onClick="SetCurrentColour('#cccccc')" class="colourBox"></div>
+<div style="background-color: brown;" onClick="SetCurrentColour('brown')" class="colourBox"></div>
+
 </div>
 <button onclick="MakeImage()">Make Image</button>
 <img src="" id="previewimage">
 
 <script type="text/javascript" src="js/game.js"></script>
-
+<script type="text/javascript" src="js/sizeof.js"></script>
 
 
   </body>
