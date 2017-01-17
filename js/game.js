@@ -43,15 +43,18 @@ function StartGame() {
   var gameContainer = document.getElementById("game");
   gameContainer.addEventListener('mousedown', function(e) {
       HandleClick(e);
+      e.preventDefault();
   });
 
     gameContainer.addEventListener('mouseup', function(e) {
     mouseDown = false;
+    e.preventDefault();
     
   });
       
   gameContainer.addEventListener('mousemove', function(e) {
      HandleMoved(e)
+     e.preventDefault();
   });
 
   preview = document.getElementById("previewimage");
