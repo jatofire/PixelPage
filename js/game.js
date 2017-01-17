@@ -57,6 +57,11 @@ function StartGame() {
      e.preventDefault();
   });
 
+   gameContainer.addEventListener('touchmove', function(e) {
+     HandleMoved(e)
+     e.preventDefault();
+  });
+
   preview = document.getElementById("previewimage");
   mapWidth = document.getElementById("widthInput");
   mapHeight = document.getElementById("heightInput");
