@@ -53,6 +53,11 @@
     .toolbar {
       display: inline-block;
     }
+
+	.toolbar:hover {
+		cursor: pointer;
+	}
+
     </style>
 
 
@@ -64,12 +69,18 @@
 <input id="widthInput" value="20"></input>
 <input id="heightInput" value="20"></input>
 <div id="currentColourPreview" class="colourBox black"></div>
-<div id="game"></div>
+
 <div>
   <div onClick="SetAction('erase')" class="button toolbar">Erase</div>
   <div onClick="SetAction('draw')" class="button toolbar">Draw</div>
    <div onClick="SetAction('fill')" class="button toolbar">Fill</div>
    <div onClick="SetAction('erasefill')" class="button toolbar">Erase Fill</div>
+
+   <div onClick="SetAction('colourpicker')" class="button toolbar">
+   		<div id="colourpickerpreview" class="colourBox"></div>
+		Colour Picker
+	</div>
+
 </div>
 <div id="pallette">
 <input id="colourPicker" onChange="SetColour()" type="color" name="colourPicker">
@@ -83,6 +94,8 @@
 <div style="background-color: brown;" onClick="SetCurrentColour('brown')" class="colourBox"></div>
 
 </div>
+
+<div id="game"></div>
 <button onclick="MakeImage()">Make Image</button>
 <img src="" id="previewimage">
 

@@ -34,7 +34,7 @@ var action = "draw";
 var mouseDown = false;
 
 var previousTile;
-
+var colourPickPreview;
 
 function StartGame() {
 
@@ -83,7 +83,7 @@ function StartGame() {
   gameArea.start(gameContainer, map);
   currentColour = "black";
   map.draw(gameArea.context);
-
+	colourPickPreview = document.getElementById("colourpickerpreview");
   //var t = tileAtPos(81, 61);
   //Fill(t);
 
@@ -98,7 +98,8 @@ var gameArea = {
         this.canvas.height = map.mapHeight * map.tileHeight;
         this.context = this.canvas.getContext("2d");
         gameContainer.appendChild(this.canvas);
-        //this.interval = setInterval(update, 20);
+        this.interval = setInterval(update, 20);
+		this.container = gameContainer;
         },
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -121,9 +122,11 @@ function SetCurrentColour(colour) {
 }
 
 function HandleMoved(e) {
+var t = getRelativeCoords(e);
+var tile = tileAtPos(t.x, t.y);
   if(mouseDown === true) {
 
-  var t = getRelativeCoords(e);
+  
   
   if(t.x < 0 || t.x > gameArea.canvas.width || t.y < 0 || t.y > gameArea.canvas.height) {
     mouseDown = false;
@@ -148,11 +151,28 @@ function HandleMoved(e) {
         tile.clear(gameArea.context);
       }
     }
+
+
+    if(this.action === "colourpicker") {
+		if(tile) {
+		colourPickPreview.style.backgroundColor = tile.colour;
+		}
+	}
+
   }
 
   previousTile = index;
 
   }
+
+
+	 if(this.action === "colourpicker") {
+		
+		colourPickPreview.style.backgroundColor = tile.colour;
+	}
+
+
+
 }
 
 
@@ -170,7 +190,7 @@ function HandleClick(e) {
       if(tile != null) {
         console.log("Erase");
        
-        tile.clear(gameArea.context);
+        tile.visible = false;
         mouseDown = true;
       }
     }
@@ -180,18 +200,25 @@ function HandleClick(e) {
     if(this.action === "erasefill") {
       Fill(tile, true);
     }
+	if(this.action === "colourpicker") {
+		SetCurrentColour(colourPickPreview.style.backgroundColor);
+	}
 
 }
 
 function SetAction(act) {
-  this.action = act;
-  console.log("Action changed to: " + this.action);
+	this.action = act;
+	var gameContainer = document.getElementById("game");
+
+	if(this.action === "colourpicker") {
+		gameArea.canvas.style.cursor = 'crosshair';
+	}
+
 }
 
 function DrawTile(tile) {
   tile.colour = currentColour;
   tile.visible = true;
-  tile.draw(gameArea.context);
 }
 
 function MakeImage() {
@@ -199,9 +226,6 @@ function MakeImage() {
 }
 
 function Fill(tile, erase = false) {
-  
-
-  console.log("Fill erase: " + erase);
 
   var tilesToCheck = [];
   var tilesChecked = [];
@@ -215,16 +239,7 @@ function Fill(tile, erase = false) {
   //check top
  
   while(checkingTiles === true) {
-    
-    
-    
-
-    var tilesToAdd = CheckSurrounding(tilesToCheck[0], tilesChecked, oldColour, oldVisible);
-   
-
-
-  
-  
+    var tilesToAdd = CheckSurrounding(tilesToCheck[0], tilesChecked, oldColour, oldVisible);  
     if(tilesToAdd == null) {} else {
 
       for(i = 0; i < tilesToAdd.length; i += 1) {
@@ -235,17 +250,10 @@ function Fill(tile, erase = false) {
         }
       }
     }
-
-    
-
     tilesChecked.push(tilesToCheck[0]);
     tilesToCheck.splice(0, 1);
-   
     if(tilesToCheck.length === 0) { checkingTiles = false }; 
   }
-
-
-
 
   for( j = 0; j < tilesChecked.length; j += 1) {
     
@@ -260,9 +268,9 @@ function Fill(tile, erase = false) {
     }
   }
 
-
-
 }
+
+
 
 function CheckSurrounding(tileId, checked, colour, visible) {
   
@@ -333,16 +341,6 @@ function CheckSurrounding(tileId, checked, colour, visible) {
 
 
 function tileAtPos(x, y){
-/*
-  for(i = 0; i < map.tiles.length; i +=1 ) {
-    if(x >= map.tiles[i].x && x <= map.tiles[i].x + map.tileWidth) {
-      if(y >= map.tiles[i].y && y <= map.tiles[i].y + map.tileHeight) {
-        return map.tiles[i];
-      }
-    }
-  }
-  return null;
-*/
 
   var newx = x - (x % map.tileWidth);
   var newy = y - (y % map.tileHeight);
@@ -354,6 +352,17 @@ function tileAtPos(x, y){
 
 }
 
+function tileIndexAtPos(x, y){
+
+  var newx = x - (x % map.tileWidth);
+  var newy = y - (y % map.tileHeight);
+
+  var xindex = newx / map.tileWidth;
+  var yindex = newy / (map.tileHeight) * map.mapHeight;
+  var index = xindex + yindex;
+  return index;
+
+}
 
 
 function update() {
