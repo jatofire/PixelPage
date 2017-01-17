@@ -56,6 +56,17 @@ function StartGame() {
      HandleMoved(e)
      e.preventDefault();
   });
+ 
+  gameContainer.addEventListener('touchdown', function(e) {
+      HandleClick(e);
+      e.preventDefault();
+  });
+
+  gameContainer.addEventListener('touchup', function(e) {
+    mouseDown = false;
+    e.preventDefault();
+    
+  });
 
    gameContainer.addEventListener('touchmove', function(e) {
      HandleMoved(e)
