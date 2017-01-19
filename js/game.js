@@ -35,7 +35,7 @@ var mouseDown = false;
 
 var previousTile;
 var colourPickPreview;
-
+var currentToolLabel;
 function StartGame() {
 
   
@@ -76,6 +76,7 @@ function StartGame() {
   preview = document.getElementById("previewimage");
   mapWidth = document.getElementById("widthInput");
   mapHeight = document.getElementById("heightInput");
+  currentToolLabel = document.getElementById("currentToolLabel");
 
   map = new Map(mapWidth.value, mapHeight.value, 20, 20);
 
@@ -209,10 +210,12 @@ function HandleClick(e) {
 function SetAction(act) {
 	this.action = act;
 	var gameContainer = document.getElementById("game");
-
+  currentToolLabel.innerHTML = this.action;
 	if(this.action === "colourpicker") {
 		gameArea.canvas.style.cursor = 'crosshair';
-	}
+	} else {
+    gameArea.canvas.style.cursor = 'default';
+  }
 
 }
 
